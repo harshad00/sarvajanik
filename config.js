@@ -6,7 +6,7 @@ const HARDCODED_CONFIG = {
   scriptUrl: 'https://script.google.com/macros/s/AKfycbyuJ2m3Gy0qpcT8KtfRccumLM-csysITP_i814N12oNHBUwqTEP1CivcN-EIn5ggP-NPQ/exec',
   campusLat: '23.6008',   // ← already correct from your screenshot
   campusLon: '72.3953',   // ← already correct
-  campusRadius: '150'
+  campusRadius: '20'
 };
 
 // ============================================================
