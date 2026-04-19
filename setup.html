@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup — College Attendance</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="page-wrap">
+  <a href="index.html" class="back-link">← Back to Home</a>
+  <div class="page-title">⚙️ First-Time Setup</div>
+  <div class="page-sub">Configure your college and Google Sheets connection</div>
+
+  <div id="setupMsg" class="msg"></div>
+
+  <div class="card">
+    <div class="card-title">🏫 College Info</div>
+    <div class="form-group">
+      <label class="form-label">College Name</label>
+      <input type="text" id="collegeName" class="form-input" placeholder="e.g. ABC College of Engineering">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📍 Campus Location</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">This is used to verify student GPS location when marking attendance.</p>
+
+    <div class="gps-status" id="gpsStatus" style="margin-bottom:16px">
+      <div class="gps-dot orange" id="gpsDot"></div>
+      <span id="gpsText">Click button to auto-detect</span>
+    </div>
+
+    <button class="btn btn-outline" onclick="detectLocation()" style="margin-bottom:16px">📡 Auto-detect My Location</button>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Campus Latitude</label>
+        <input type="text" id="campusLat" class="form-input" placeholder="e.g. 23.0225">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Campus Longitude</label>
+        <input type="text" id="campusLon" class="form-input" placeholder="e.g. 72.5714">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Allowed Radius (meters)</label>
+      <input type="number" id="campusRadius" class="form-input" value="200" placeholder="200">
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Students must be within this distance to mark attendance</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔗 Google Apps Script URL</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+      Paste your deployed Apps Script Web App URL here. See <code style="background:var(--surface2);padding:2px 6px;border-radius:4px">appscript.js</code> and README for setup steps.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Script URL</label>
+      <input type="url" id="scriptUrl" class="form-input" placeholder="https://script.google.com/macros/s/YOUR_ID/exec">
+    </div>
+  </div>
+
+  <button class="btn btn-primary btn-full" onclick="saveConfig()">💾 Save Configuration</button>
+
+  <div style="margin-top:12px">
+    <button class="btn btn-outline btn-full" onclick="testConnection()">🧪 Test Connection</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  // Load existing config
+  window.addEventListener('DOMContentLoaded', () => {
+    const cfg = getConfig();
+    if (cfg.collegeName) document.getElementById('collegeName').value = cfg.collegeName;
+    if (cfg.campusLat) document.getElementById('campusLat').value = cfg.campusLat;
+    if (cfg.campusLon) document.getElementById('campusLon').value = cfg.campusLon;
+    if (cfg.campusRadius) document.getElementById('campusRadius').value = cfg.campusRadius;
+    if (cfg.scriptUrl) document.getElementById('scriptUrl').value = cfg.scriptUrl;
+  });
+
+  function detectLocation() {
+    const dot = document.getElementById('gpsDot');
+    const text = document.getElementById('gpsText');
+    dot.className = 'gps-dot orange';
+    text.textContent = 'Detecting...';
+    getCurrentPosition()
+      .then(pos => {
+        document.getElementById('campusLat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('campusLon').value = pos.coords.longitude.toFixed(6);
+        dot.className = 'gps-dot green';
+        text.textContent = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)} — Accuracy: ${Math.round(pos.coords.accuracy)}m`;
+      })
+      .catch(() => {
+        dot.className = 'gps-dot red';
+        text.textContent = 'Location access denied.';
+      });
+  }
+
+  function saveConfig() {
+    const cfg = {
+      collegeName: document.getElementById('collegeName').value.trim(),
+      campusLat: document.getElementById('campusLat').value.trim(),
+      campusLon: document.getElementById('campusLon').value.trim(),
+      campusRadius: document.getElementById('campusRadius').value.trim(),
+      scriptUrl: document.getElementById('scriptUrl').value.trim()
+    };
+    localStorage.setItem('attendanceConfig', JSON.stringify(cfg));
+    showMsg(document.getElementById('setupMsg'), '✅ Configuration saved!', 'success');
+    setTimeout(() => window.location.href = 'index.html', 1500);
+  }
+
+  async function testConnection() {
+    const msg = document.getElementById('setupMsg');
+    showMsg(msg, 'Testing connection...', 'info');
+    try {
+      const result = await apiCall('ping', {});
+      if (result.pong) {
+        showMsg(msg, '✅ Connection successful! Google Sheets is connected.', 'success');
+      } else {
+        showMsg(msg, '⚠️ Connected but unexpected response.', 'warn');
+      }
+    } catch (e) {
+      showMsg(msg, '❌ Connection failed: ' + e.message, 'error');
+    }
+  }
+</script>
+</body>
+</html>

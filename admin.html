@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<div class="page-wrap wide">
+  <a href="index.html" class="back-link">← Back</a>
+
+  <!-- LOGIN SECTION -->
+  <div id="loginSection">
+    <div class="page-title">Admin Login</div>
+    <div class="page-sub">Access the attendance management dashboard</div>
+
+    <div class="card" style="max-width:400px">
+      <div id="loginMsg" class="msg"></div>
+
+      <div class="form-group">
+        <label class="form-label">Admin ID</label>
+        <input type="text" id="adminId" class="form-input" placeholder="Your admin username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="adminPwd" class="form-input" placeholder="Your password">
+      </div>
+
+      <button class="btn btn-secondary btn-full" onclick="adminLogin()" id="loginBtn">Login</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SECTION -->
+  <div id="dashSection" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="page-title">Admin Dashboard</div>
+        <div style="color:var(--muted);font-size:14px" id="adminNameDisplay"></div>
+      </div>
+      <button class="btn btn-outline" onclick="adminLogout()" style="padding:8px 16px;font-size:13px">Logout</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('create')">➕ Create Session</button>
+      <button class="tab" onclick="switchTab('records')">📋 Records</button>
+      <button class="tab" onclick="switchTab('students')">👥 Students</button>
+    </div>
+
+    <!-- TAB: CREATE SESSION -->
+    <div id="tabCreate">
+      <div class="card">
+        <div class="card-title">📡 Create Attendance Session</div>
+        <div id="createMsg" class="msg"></div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Admin (Auto)</label>
+            <input type="text" id="adminNameField" class="form-input" readonly>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Date (Auto)</label>
+            <input type="text" id="dateField" class="form-input" readonly>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Time (Auto)</label>
+            <input type="text" id="timeField" class="form-input" readonly>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Location (Auto)</label>
+            <div class="gps-status" style="margin:0">
+              <div class="gps-dot orange" id="adminGpsDot"></div>
+              <span id="adminGpsText" style="font-size:12px">Getting location...</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:20px 0"></div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Select Year</label>
+            <div class="year-selector" style="margin:0">
+              <button class="year-btn fy" onclick="selectYear('FY',this)">FY</button>
+              <button class="year-btn sy" onclick="selectYear('SY',this)">SY</button>
+              <button class="year-btn ty" onclick="selectYear('TY',this)">TY</button>
+            </div>
+            <input type="hidden" id="selectedYear">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Subject / Class</label>
+            <input type="text" id="subjectField" class="form-input" placeholder="e.g. Math, Physics Lab">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Time Limit (minutes)</label>
+            <input type="number" id="timeLimitField" class="form-input" value="15" min="1" max="120">
+          </div>
+        </div>
+
+        <div style="margin-top:24px">
+          <button class="btn btn-primary" onclick="createSession()" id="createBtn">
+            🚀 Start Attendance Session
+          </button>
+        </div>
+      </div>
+
+      <!-- Active sessions display -->
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title" style="margin:0">⚡ Active Sessions</div>
+          <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="loadActiveSessions()">Refresh</button>
+        </div>
+        <div id="activeSessionsList">
+          <div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">No active sessions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: RECORDS -->
+    <div id="tabRecords" style="display:none">
+      <div class="card">
+        <div class="card-title">📊 Attendance Records</div>
+        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end">
+          <div class="form-group" style="margin:0;flex:1;min-width:120px">
+            <label class="form-label">Year</label>
+            <select id="filterYear" class="form-input">
+              <option value="">All</option>
+              <option>FY</option>
+              <option>SY</option>
+              <option>TY</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;flex:1;min-width:120px">
+            <label class="form-label">Date</label>
+            <input type="date" id="filterDate" class="form-input">
+          </div>
+          <button class="btn btn-primary" onclick="loadRecords()">Search</button>
+        </div>
+        <div id="recordsTable">
+          <div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Select filters and click Search</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: STUDENTS -->
+    <div id="tabStudents" style="display:none">
+      <div class="card">
+        <div class="card-title">👥 Student List</div>
+        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end">
+          <div class="year-selector" style="margin:0;flex:1">
+            <button class="year-btn fy" onclick="loadStudents('FY',this)">FY</button>
+            <button class="year-btn sy" onclick="loadStudents('SY',this)">SY</button>
+            <button class="year-btn ty" onclick="loadStudents('TY',this)">TY</button>
+          </div>
+        </div>
+        <div id="studentsTable">
+          <div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">Select a year to view students</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

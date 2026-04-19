@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Attendance System</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="landing">
+  <div class="bg-grid"></div>
+  <div class="landing-wrap">
+    <div class="college-badge">
+      <div class="badge-icon">🎓</div>
+      <div>
+        <div class="college-name" id="collegeName">Your College</div>
+        <div class="college-sub">Attendance Management System</div>
+      </div>
+    </div>
+
+    <h1 class="hero-title">Mark Your<br><span class="accent">Presence.</span></h1>
+    <p class="hero-sub">GPS-verified attendance for students & faculty. Secure. Simple. Real-time.</p>
+
+    <div class="portal-cards">
+      <a href="student.html" class="portal-card student-card">
+        <div class="card-icon">👨‍🎓</div>
+        <div class="card-label">Student Portal</div>
+        <div class="card-desc">Mark your daily attendance</div>
+        <div class="card-arrow">→</div>
+      </a>
+      <a href="admin.html" class="portal-card admin-card">
+        <div class="card-icon">🛡️</div>
+        <div class="card-label">Admin Portal</div>
+        <div class="card-desc">Manage sessions & records</div>
+        <div class="card-arrow">→</div>
+      </a>
+    </div>
+
+    <div class="footer-note">Powered by Google Sheets · GPS Verified · Free to Deploy</div>
+  </div>
+
+  <script>
+    const cfg = JSON.parse(localStorage.getItem('attendanceConfig') || '{}');
+    if (cfg.collegeName) document.getElementById('collegeName').textContent = cfg.collegeName;
+  </script>
+</body>
+</html>
